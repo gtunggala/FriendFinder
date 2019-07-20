@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>F-R-I-E-N-D-S Finder</title>
+
+    <!-- Latest compiled and minified CSS & JS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!-- Chosen -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Questions</h2>
+      <hr />
+
+      <h4>Name (Required)</h4>
+      <input type="text" id="name" class="form-control" required />
+
+      <hr />
+
+      <h4>You like to clean.</h4>
+      <select class="chosen-select" id="q1">
+        <option value=""></option>
+        <option value="1">1 (Disagree)</option>
+        <option value="2">2</option>
+        <option value="3">3 (Agree)</option>
+      </select>
+
+      <h4>You like to make jokes.</h4>
+      <select class="chosen-select" id="q2">
+        <option value=""></option>
+        <option value="1">1 (Disagree)</option>
+        <option value="2">2</option>
+        <option value="3">3 (Agree)</option>
+      </select>
+
+      <h4>You love dinosaurs.</h4>
+      <select class="chosen-select" id="q3">
+        <option value=""></option>
+        <option value="1">1 (Disagree)</option>
+        <option value="2">2</option>
+        <option value="3">3 (Agree)</option>
+      </select>
+
+      <br />
+      <br />
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg btn-block"
+        id="submit"
+      >
+        <i class="fa fa-check-circle" aria-hidden="true"></i> Submit
+      </button>
+
+      <hr />
+    </div>
+
+    <!-- Modal -->
+    <div id="results-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="close" data-dismiss="modal">&times;</button>
+            <h2 class="modal-title"><strong>Best Match</strong></h2>
+          </div>
+          <div class="modal-body">
+            <h2 id="match-name"></h2>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      // CSS stuff
+      var config = {
+        ".chosen-select": {},
+        ".chosen-select-deselect": {
+          allow_single_deselect: true
+        },
+        ".chosen-select-no-single": {
+          disable_search_threshold: 3
+        },
+        ".chosen-select-no-results": {
+          no_results_text: "Sorry! You're forever alone!"
+        },
+        ".chosen-select-width": {
+          width: "100%"
+        }
+      };
+
+      for (var selector in config) {
+        $(selector).chosen(config[selector]);
+      }
+
+      // form input
+      $("#submit").on("click", function(event) {
+        event.preventDefault();
+
+        function validateForm() {
+          var isValid = true;
+          $(".form-control").each(function() {
+            if ($(this).val() === "") {
+              isValid = false;
+            }
+          });
+
+          $(".chosen-select").each(function() {
+            if ($(this).val() === "") {
+              isValid = false;
+            }
+          });
+          return isValid;
+        }
+
+        if (validateForm()) {
+          var userData = {
+            name: $("#name").val(),
+            scores: [$("#q1").val(), $("#q2").val(), $("#q3").val()]
+          };
+
+          // find friend through AJAX
+          $.post("/api/friends", userData, function(data) {
+            // displays result
+            $("#match-name").text(data.name);
+
+            // Show the modal with the best match
+            $("#results-modal").modal("toggle");
+          });
+        } else {
+          alert("Please fill out all fields before submitting!");
+        }
+      });
+    </script>
+  </body>
+</html>
